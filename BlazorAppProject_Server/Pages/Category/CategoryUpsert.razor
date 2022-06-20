@@ -71,7 +71,7 @@
 
     private async Task UpsertCategory()
     {
-        if (Id == 0)
+        if (Category.Id == 0)
         {
             //create
             await _categoryRepository.Create(Category);

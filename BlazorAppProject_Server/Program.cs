@@ -2,6 +2,8 @@ using BlazorApp_Business.Repository;
 using BlazorApp_Business.Repository.IRepository;
 using BlazorApp_Data.Data;
 using BlazorAppProject_Server.Data;
+using BlazorAppProject_Server.Service;
+using BlazorAppProject_Server.Service.IService;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +19,7 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectio
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IFileUpload, FileUpload>();
 
 
 var app = builder.Build();

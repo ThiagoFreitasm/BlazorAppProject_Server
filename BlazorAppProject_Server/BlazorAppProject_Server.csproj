@@ -21,4 +21,8 @@
     <ProjectReference Include="..\BlazorApp_Models\BlazorApp_Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\image\product\" />
+  </ItemGroup>
+
 </Project>

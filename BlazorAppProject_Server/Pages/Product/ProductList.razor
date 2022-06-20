@@ -1,32 +1,45 @@
-﻿@page "/category"
-@inject ICategoryRepository _categorIRepository
-@inject IJSRuntime _jsRuntime
+﻿@page "/product"
+@inject IProductRepository _productRepository
+@inject IJSRuntime _js
+@inject IFileUpload _fileUpload
 
 <_DeleteConfirmation IsParentComponentProcessing="isLoading" ConfirmationChanged="ConfirmDelete_Click"></_DeleteConfirmation>
 <div class="row mt-4">
     <div class="col-6">
-        <h4 class="card-title text-primary">Category List</h4>
+        <h4 class="card-title text-primary">Product List</h4>
     </div>
     <div class="col-4 offset-2">
-        <a class="btn btn-primary form-control" href="/category/create">Add new Category</a>
+        <a class="btn btn-primary form-control" href="/product/create">Add new Product</a>
     </div>
     <div class="col-12">
-        @if (Categories.Any())
+        @if (Products.Any())
         {
             <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Shop Favorites</th>
+                        <th>Costumer Favorites</th>
+                        <th>Category</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Categories)
+                    @foreach (var item in Products)
                     {
                         <tr>
                             <td>@item.Name</td>
+                            <th>
+                                <input type="checkbox" disabled checked="@item.ShopFavorites">  
+                            </th>
+                            <th>
+                                <input type="checkbox" disabled checked="@item.CustomerFavorites">
+                            </th>
+                            <th>
+                                @item.Category.Name
+                            </th>
                             <td>
-                                <NavLink href="@($"category/edit/{item.Id}")" class="btn btn-primary">Edit</NavLink>
+                                <NavLink href="@($"product/edit/{item.Id}")" class="btn btn-primary">Edit</NavLink>
                                 <button class="btn btn-danger" @onclick="()=>HandleDelete(item.Id)">Delete</button>
                             </td>
                         </tr>
@@ -48,42 +61,48 @@
 </div>
 
 @code {
-    private IEnumerable<CategoryDTO> Categories { get; set; } = new List<CategoryDTO>();
+    private IEnumerable<ProductDTO> Products { get; set; } = new List<ProductDTO>();
     public bool isLoading { get; set; } 
-    public int DeleteCategoryID { get; set; } = 0;
+    public int DeleteProductID { get; set; } = 0;
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await loadCategories();    
+            await loadProducts();    
         }        
     }
-    private async Task loadCategories()
+    private async Task loadProducts()
     {
         isLoading = true;
         StateHasChanged();
-        Categories = await _categorIRepository.GetAll();
+        Products = await _productRepository.GetAll();
         isLoading = false;
         StateHasChanged();
     }
     //Esse metodo mostra o box de confirmacao se quer deletar ou nao!
     private void HandleDelete(int id)
     {
-        DeleteCategoryID = id;
-        _jsRuntime.InvokeVoidAsync("ShowDeleteConfirmationModal");
+        DeleteProductID = id;
+        _js.InvokeVoidAsync("ShowDeleteConfirmationModal");
     }
     public async Task ConfirmDelete_Click(bool isConfirmed)
     {
         isLoading = true;
-        if (isConfirmed && DeleteCategoryID!=0)
+        if (isConfirmed && DeleteProductID!=0)
         {
             //Delete
-            await _categorIRepository.Delete(DeleteCategoryID);
-            await loadCategories();
-            await _jsRuntime.InvokeVoidAsync("HideDeleteConfirmationModal");
+            ProductDTO product = await _productRepository.Get(DeleteProductID);
 
+            if (!product.ImageUrl.Contains("default.png"))
+            {
+                _fileUpload.DeleteFile(product.ImageUrl);
+            }
+            await _productRepository.Delete(DeleteProductID);
+            await _js.ToastrSuccess("Product Deleted successfully");
+            await loadProducts();
+            await _js.InvokeVoidAsync("HideDeleteConfirmationModal");
         }
         isLoading = false;
     }
