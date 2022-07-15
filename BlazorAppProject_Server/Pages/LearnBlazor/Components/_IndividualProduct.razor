@@ -29,7 +29,7 @@
     
     
 
-    private async Task FavoriteUpdated(ChangeEventArgs a)
+    private async Task FavoriteUpdated(Microsoft.AspNetCore.Components.ChangeEventArgs a)
     {
         await OnFavoriteSelection.InvokeAsync((bool)a.Value);
     }
